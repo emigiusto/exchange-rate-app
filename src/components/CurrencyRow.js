@@ -1,11 +1,8 @@
 import React from 'react';
-//import cutDecimals from './helpers'
 
 function CurrencyRow(
-    {   currencyOptions,selectedCurrency, onChangeCurrency,
-        amount,onChangeAmount}) {
-
-    
+    {currencyOptions,selectedCurrency, onChangeCurrency,
+    amount,onChangeAmount}) {
 
     return (
         <div>
@@ -16,11 +13,14 @@ function CurrencyRow(
             </input>
             <select value={selectedCurrency} onChange={onChangeCurrency}>
                 {currencyOptions.map(option => (
-                    <option value={option} key={option}>{option}</option>
+                    <option 
+                        value={option.name} 
+                        key={option.name + option.crypto.toString()}>
+                    {option.name}
+                    </option>
                 ))}
             </select>
         </div>
     );
 }
-
 export default CurrencyRow;

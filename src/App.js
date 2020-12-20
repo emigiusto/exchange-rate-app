@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import './App.css'
 import CurrencyRow from './components/CurrencyRow'
-import {convertToUSD} from './helpers/cryptoCurrency'
+import {anyCointoCrypto,cryptoToCrypto,getCryptoInfo} from './helpers/cryptoCurrency'
 
 const BASE_URL = 'https://api.exchangeratesapi.io/latest'
 
@@ -14,8 +14,7 @@ function App() {
   const [exchangeRate, setExchangeRate] = useState()
   const [amount, setAmount] = useState(1)
   const [amountiInFromCurrency, setAmountiInFromCurrency] = useState(true)
-  const [cryptoCurrencyUSDT, setCryptoCurrencyUSDT] = useState([])
-
+  
   let toAmount, fromAmount;
   //Decides which input we should update (the opposite from the user' changes)
   if (amountiInFromCurrency) {
@@ -26,37 +25,58 @@ function App() {
     fromAmount = amount / exchangeRate
   }
 
-  //Runs getting loading available currency and exchange rates
+  //Runs getting loading available currency and first exchange rate
   useEffect(()=>{
     fetch(BASE_URL)
           .then(res => res.json())
           .then(data => {
-            const firstCurrencyReturned = Object.keys(data.rates)[0]
-            // Stores all currencies on state to load them on select
-            setCurrencyOptions([data.base, ...Object.keys(data.rates)])
-            // Defines the default currency shown on both ends
-            setFromCurrency(data.base)
-            setToCurrency(firstCurrencyReturned)
-            //Sets the exchange rate to the firstCurrencyReturned Rate
-            setExchangeRate(data.rates[firstCurrencyReturned])
+            console.log(data)
+            var currenciesArray = Object.keys(data.rates)
+            var otherCurrencies =  currenciesArray.map(currency => {
+                                        return  {name: currency, crypto:false}})
+            getCryptoInfo().then(allUSDcryptos => {
+              var USDcryptosArray = allUSDcryptos.map(crypto => {
+                return {name: crypto.symbol, crypto: true}
+              })
+            
+              var allCurrencies = [{name: data.base, crypto: false}, ...otherCurrencies,...USDcryptosArray]
+              
+              // Stores all currencies on state to load them on select
+              setCurrencyOptions(allCurrencies)
+              // Defines the default currency shown on both ends
+              setFromCurrency(allCurrencies[0].name)
+              setToCurrency(allCurrencies[1].name)
+              //Sets the exchange rate to the firstCurrencyReturned Rate
+              setExchangeRate(data.rates[allCurrencies[1].name])
+            })
+
+            
           })
-  }, [])
-
-  //Runs getting available CRYPTO currency and exchange rates
-  useEffect(()=>{
-    var allCryptos = convertToUSD("BTC",2000,1.5)
-
-    //var CryptoInfo = Promise.all(allCryptos)
-    //setCryptoCurrencyUSDT(CryptoInfo)
   }, [])
 
   //Runs everytime the user changes the currency selection
   useEffect(()=>{
-    if (fromCurrency!=null && toCurrency!=null) {
-      //Fetch new exchangeRate specifying from and to Currency
-      fetch(BASE_URL + '?base='+ fromCurrency + '&symbols=' + toCurrency)
-      .then(res => res.json())
-      .then(data => setExchangeRate(data.rates[toCurrency]))
+    if (fromCurrency!=null && toCurrency!=null && fromCurrency!== toCurrency) {
+      //Checks if from and to are CryptoCurrency
+      const isFromCrypto = currencyOptions.find(currency => currency.name === fromCurrency).crypto;
+      const isToCrypto = currencyOptions.find(currency => currency.name === toCurrency).crypto;
+        console.log(isFromCrypto,isToCrypto)
+      if (isFromCrypto && isToCrypto) {
+        cryptoToCrypto(fromCurrency,toCurrency)
+          .then(res => setExchangeRate(res))
+      } else if (isFromCrypto && !isToCrypto) {
+        anyCointoCrypto(toCurrency,fromCurrency)
+          .then(res => setExchangeRate(1/res))
+      } else if (!isFromCrypto && isToCrypto) {
+        anyCointoCrypto(fromCurrency,toCurrency)
+          .then(res => setExchangeRate(res))
+      } else {
+        fetch(BASE_URL + '?base='+ fromCurrency + '&symbols=' + toCurrency)
+        .then(res => res.json())
+        .then(data => setExchangeRate(data.rates[toCurrency]))
+      } 
+    } else if (fromCurrency === toCurrency){
+      setExchangeRate(1)
     }
   }, [fromCurrency,toCurrency])
 
@@ -85,7 +105,7 @@ function App() {
       <CurrencyRow className="currency-row"
             currencyOptions={currencyOptions}
             selectedCurrency={toCurrency}
-            onChangeCurrency={e => setToCurrency(e.target.value)}
+            onChangeCurrency={e => {setToCurrency(e.target.value)}}
             amount={toAmount}
             onChangeAmount= {handleToAmountChange}>
       </CurrencyRow>
