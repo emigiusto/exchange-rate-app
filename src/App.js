@@ -1,10 +1,10 @@
 import React, {useEffect, useState} from 'react';
 import './App.css'
 import CurrencyRow from './components/CurrencyRow'
-import {anyCointoCrypto,cryptoToCrypto,getCryptoInfo} from './helpers/cryptoCurrency'
+//import {anyCointoCrypto,cryptoToCrypto,getCryptoInfo} from './converters/CurrencyConverter'
+//import {getNormalCurrencies,getNormalExchangeRate} from './converters/worldCurrencyConverter'
 
-const BASE_URL = 'https://api.exchangeratesapi.io/latest'
-
+import CurrencyService from './service/currencyService'
 
 function App() {
 
@@ -14,6 +14,7 @@ function App() {
   const [exchangeRate, setExchangeRate] = useState()
   const [amount, setAmount] = useState(1)
   const [amountiInFromCurrency, setAmountiInFromCurrency] = useState(true)
+  const [currencyService, setCurrencyService] = useState(new CurrencyService())
   
   let toAmount, fromAmount;
   //Decides which input we should update (the opposite from the user' changes)
@@ -25,42 +26,40 @@ function App() {
     fromAmount = amount / exchangeRate
   }
 
-  //Runs getting loading available currency and first exchange rate
+  //Runs when mounting the App getting loading available currency and first exchange rate
   useEffect(()=>{
-    fetch(BASE_URL)
-          .then(res => res.json())
-          .then(data => {
-            console.log(data)
-            var currenciesArray = Object.keys(data.rates)
-            var otherCurrencies =  currenciesArray.map(currency => {
-                                        return  {name: currency, crypto:false}})
-            getCryptoInfo().then(allUSDcryptos => {
-              var USDcryptosArray = allUSDcryptos.map(crypto => {
-                return {name: crypto.symbol, crypto: true}
-              })
-            
-              var allCurrencies = [{name: data.base, crypto: false}, ...otherCurrencies,...USDcryptosArray]
-              
-              // Stores all currencies on state to load them on select
-              setCurrencyOptions(allCurrencies)
-              // Defines the default currency shown on both ends
-              setFromCurrency(allCurrencies[0].name)
-              setToCurrency(allCurrencies[1].name)
-              //Sets the exchange rate to the firstCurrencyReturned Rate
-              setExchangeRate(data.rates[allCurrencies[1].name])
-            })
+    /* Returns an object with the rate from the first coin and the array of all normal Currencies
+      { 
+        firstRate: 1.45, (Rate from the first coin in the array below)
+        currenciesArray: [{name: "CAD", crypto: false}, {name: "GBP", crypto: false}...]
+      }
+    *//*
+    getNormalCurrencies().then((normalCurrenciesArray) => {
+      //Gets an array including all crypto currencys with USDT pair in the market
+      getCryptoInfo().then(allUSDcryptos => {
+        var allCurrencies = [...normalCurrenciesArray.currenciesArray,...allUSDcryptos]
 
-            
-          })
+        // Stores all currencies on state to load them on CurrencyRow component
+          setCurrencyOptions(allCurrencies)
+        // Defines the default currency shown on both ends (From and To)
+          setFromCurrency(allCurrencies[0].name)
+          setToCurrency(allCurrencies[1].name)
+        //Sets the exchange rate to the firstCurrencyReturned Rate
+          setExchangeRate(normalCurrenciesArray.firstRate)
+      })
+    })
   }, [])
 
   //Runs everytime the user changes the currency selection
   useEffect(()=>{
-    if (fromCurrency!=null && toCurrency!=null && fromCurrency!== toCurrency) {
+
+    currencyService(fromCurrency,toCurrency)
+    /*if (fromCurrency!=null && toCurrency!=null && fromCurrency!== toCurrency) {
       //Checks if from and to are CryptoCurrency
       const isFromCrypto = currencyOptions.find(currency => currency.name === fromCurrency).crypto;
       const isToCrypto = currencyOptions.find(currency => currency.name === toCurrency).crypto;
-        console.log(isFromCrypto,isToCrypto)
+
+      //Based on the inputs being crypto or normal currency, sets the new ExchangeRate
       if (isFromCrypto && isToCrypto) {
         cryptoToCrypto(fromCurrency,toCurrency)
           .then(res => setExchangeRate(res))
@@ -71,13 +70,11 @@ function App() {
         anyCointoCrypto(fromCurrency,toCurrency)
           .then(res => setExchangeRate(res))
       } else {
-        fetch(BASE_URL + '?base='+ fromCurrency + '&symbols=' + toCurrency)
-        .then(res => res.json())
-        .then(data => setExchangeRate(data.rates[toCurrency]))
+        getNormalExchangeRate(fromCurrency,toCurrency).then(exchangeRate => setExchangeRate(exchangeRate)) 
       } 
     } else if (fromCurrency === toCurrency){
       setExchangeRate(1)
-    }
+    }*/
   }, [fromCurrency,toCurrency])
 
 
@@ -105,7 +102,7 @@ function App() {
       <CurrencyRow className="currency-row"
             currencyOptions={currencyOptions}
             selectedCurrency={toCurrency}
-            onChangeCurrency={e => {setToCurrency(e.target.value)}}
+            onChangeCurrency={e => setToCurrency(e.target.value)}
             amount={toAmount}
             onChangeAmount= {handleToAmountChange}>
       </CurrencyRow>

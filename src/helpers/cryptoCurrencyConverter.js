@@ -3,22 +3,26 @@ const EXCHANGE_URL = 'https://api.exchangeratesapi.io/latest'
 
 const Axios = require('axios').default;
 
+
+
 const getCryptoInfo = async () => {
   const cryptoData = await Axios.get(CRYPTO_URL);
       var onlyUSDT = cryptoData.data.filter(symbolInfo => symbolInfo.symbol.slice(-4) === "USDT")
-      var cryptoUSDT = onlyUSDT.map(usdtSymbolInfo => {
+      var allUSDcryptos = onlyUSDT.map(usdtSymbolInfo => {
         var lenghtSymbol = usdtSymbolInfo.symbol.length
         return {
-                symbol: usdtSymbolInfo.symbol.slice(0, lenghtSymbol-4), 
-                price: parseFloat(usdtSymbolInfo.price)}
+                name: usdtSymbolInfo.symbol.slice(0, lenghtSymbol-4), 
+                price: parseFloat(usdtSymbolInfo.price),
+                crypto: true
+              }
         })
-      return cryptoUSDT
+      return allUSDcryptos
 };
 
 const anyCointoCrypto = async (normalCoin,cryptoCoin) => {
     //Assuming USDT = USD
     var currencyToCrypto = getCryptoInfo().then(allUSDCryptos => {
-      var cryptoSymbol = allUSDCryptos.filter(crypto => crypto.symbol === cryptoCoin)
+      var cryptoSymbol = allUSDCryptos.filter(crypto => crypto.name === cryptoCoin)
       // Rate between CryptoCoin selected and USDT
       var cryptoExchangeRate = cryptoSymbol[0].price
 
@@ -37,7 +41,7 @@ const anyCointoCrypto = async (normalCoin,cryptoCoin) => {
 
 const cryptoToCrypto = async (cryptoCoin1,cryptoCoin2) => {
   var finalExchangeRate = getCryptoInfo().then(allUSDCryptos => {
-    var cryptoSymbol = allUSDCryptos.filter(crypto => crypto.symbol === cryptoCoin1 || crypto.symbol === cryptoCoin2)
+    var cryptoSymbol = allUSDCryptos.filter(crypto => crypto.name === cryptoCoin1 || crypto.name === cryptoCoin2)
     var cryptoExchangeRate = cryptoSymbol[0].price / cryptoSymbol[1].price 
     return cryptoExchangeRate
   });
