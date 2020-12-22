@@ -4,7 +4,7 @@ import CurrencyRow from './components/CurrencyRow'
 //import {anyCointoCrypto,cryptoToCrypto,getCryptoInfo} from './converters/CurrencyConverter'
 //import {getNormalCurrencies,getNormalExchangeRate} from './converters/worldCurrencyConverter'
 
-import CurrencyService from './service/currencyService'
+import {getPairsRates, getPairExchangeRate} from './service/exchangeService'
 
 function App() {
 
@@ -14,7 +14,7 @@ function App() {
   const [exchangeRate, setExchangeRate] = useState()
   const [amount, setAmount] = useState(1)
   const [amountiInFromCurrency, setAmountiInFromCurrency] = useState(true)
-  const [currencyService, setCurrencyService] = useState(new CurrencyService())
+  //const [currencyService, setCurrencyService] = useState()
   
   let toAmount, fromAmount;
   //Decides which input we should update (the opposite from the user' changes)
@@ -28,6 +28,7 @@ function App() {
 
   //Runs when mounting the App getting loading available currency and first exchange rate
   useEffect(()=>{
+  })
     /* Returns an object with the rate from the first coin and the array of all normal Currencies
       { 
         firstRate: 1.45, (Rate from the first coin in the array below)
@@ -51,9 +52,12 @@ function App() {
   }, [])
 
   //Runs everytime the user changes the currency selection
-  useEffect(()=>{
+  
+  */
+ useEffect(()=>{
 
-    currencyService(fromCurrency,toCurrency)
+    var pairs = getPairsRates({name: "USD", market: "world"},{name: "EUR", market: "world"})
+    console.log(pairs)
     /*if (fromCurrency!=null && toCurrency!=null && fromCurrency!== toCurrency) {
       //Checks if from and to are CryptoCurrency
       const isFromCrypto = currencyOptions.find(currency => currency.name === fromCurrency).crypto;
@@ -75,7 +79,7 @@ function App() {
     } else if (fromCurrency === toCurrency){
       setExchangeRate(1)
     }*/
-  }, [fromCurrency,toCurrency])
+  },[])//, [fromCurrency,toCurrency])
 
 
   function handleFromAmountChange(e) {
@@ -109,6 +113,6 @@ function App() {
     </div>
     
   );
-}
+  }
 
 export default App;

@@ -1,5 +1,26 @@
 const BASE_URL = 'https://api.exchangeratesapi.io/latest'
 
+const getWorldExchangeRate = async (currency1) => {
+    var exchangeRate = fetch(BASE_URL + '?base='+ currency1)
+        .then(res => res.json())
+        .then(data => {
+            var ratePairs = [];
+                for (const symbol in data.rates) {
+                    ratePairs.push({
+                        pair: [currency1,symbol],
+                        rate: data.rates[symbol]
+                    })
+                }
+                    
+            return {
+                pairs: ratePairs,
+                timestamp: new Date()
+            }
+            
+        })
+    return exchangeRate
+}
+
 //Ir guardando en cache todas las ya usadas con un timestamp de 5 min?
 const getNormalCurrencies = async () => {
     var currenciesInfo = fetch(BASE_URL)
@@ -18,16 +39,7 @@ const getNormalCurrencies = async () => {
     return currenciesInfo
 }
 
-const getNormalExchangeRate = async (currency1, currency2) => {
-    var exchangeRate = fetch(BASE_URL + '?base='+ currency1 + '&symbols=' + currency2)
-        .then(res => res.json())
-        .then(data => {
-            console.log(data)
-            return data.rates[currency2]
-            
-        })
-    return exchangeRate
-}
+module.exports = {getNormalCurrencies, getWorldExchangeRate}
 
-module.exports = {getNormalCurrencies, getNormalExchangeRate}
+
 
