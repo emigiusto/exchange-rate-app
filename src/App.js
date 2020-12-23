@@ -1,10 +1,9 @@
 import React, {useEffect, useState} from 'react';
 import './App.css'
 import CurrencyRow from './components/CurrencyRow'
-//import {anyCointoCrypto,cryptoToCrypto,getCryptoInfo} from './converters/CurrencyConverter'
-//import {getNormalCurrencies,getNormalExchangeRate} from './converters/worldCurrencyConverter'
 
-import {getPairsRates, getPairExchangeRate} from './service/exchangeService'
+import {getPairExchangeRate, getMarketInfo} from './service/exchangeService'
+import {allAvailableCurrencies} from './service/availableSymbolsService'
 
 function App() {
 
@@ -14,8 +13,8 @@ function App() {
   const [exchangeRate, setExchangeRate] = useState()
   const [amount, setAmount] = useState(1)
   const [amountiInFromCurrency, setAmountiInFromCurrency] = useState(true)
-  //const [currencyService, setCurrencyService] = useState()
-  
+  const [pairRates, setPairRates] = useState([])
+
   let toAmount, fromAmount;
   //Decides which input we should update (the opposite from the user' changes)
   if (amountiInFromCurrency) {
@@ -28,7 +27,27 @@ function App() {
 
   //Runs when mounting the App getting loading available currency and first exchange rate
   useEffect(()=>{
-  })
+    //Loads all available Currencies
+    allAvailableCurrencies().then(allCurrencies => {
+      setCurrencyOptions(allCurrencies)
+
+      //Sets default FromCurrency, ToCurrency
+      setFromCurrency(allCurrencies[0].name)
+      setToCurrency(allCurrencies[1].name)
+
+      getMarketInfo(allCurrencies[0],allCurrencies[1]).then(result => {
+
+        setPairRates(result)
+      })
+
+      getPairExchangeRate(allCurrencies[0].name,allCurrencies[1].name, pairRates)
+          .then((response) => {
+            console.log(response)
+          })
+      //Loads the default market on "pairRates" and sets the exchangeRate between default FromCurrency and ToCurrency
+    })
+      
+  }, [])
     /* Returns an object with the rate from the first coin and the array of all normal Currencies
       { 
         firstRate: 1.45, (Rate from the first coin in the array below)
@@ -52,35 +71,7 @@ function App() {
   }, [])
 
   //Runs everytime the user changes the currency selection
-  
   */
- useEffect(()=>{
-
-    var pairs = getPairsRates({name: "USD", market: "world"},{name: "EUR", market: "world"})
-    console.log(pairs)
-    /*if (fromCurrency!=null && toCurrency!=null && fromCurrency!== toCurrency) {
-      //Checks if from and to are CryptoCurrency
-      const isFromCrypto = currencyOptions.find(currency => currency.name === fromCurrency).crypto;
-      const isToCrypto = currencyOptions.find(currency => currency.name === toCurrency).crypto;
-
-      //Based on the inputs being crypto or normal currency, sets the new ExchangeRate
-      if (isFromCrypto && isToCrypto) {
-        cryptoToCrypto(fromCurrency,toCurrency)
-          .then(res => setExchangeRate(res))
-      } else if (isFromCrypto && !isToCrypto) {
-        anyCointoCrypto(toCurrency,fromCurrency)
-          .then(res => setExchangeRate(1/res))
-      } else if (!isFromCrypto && isToCrypto) {
-        anyCointoCrypto(fromCurrency,toCurrency)
-          .then(res => setExchangeRate(res))
-      } else {
-        getNormalExchangeRate(fromCurrency,toCurrency).then(exchangeRate => setExchangeRate(exchangeRate)) 
-      } 
-    } else if (fromCurrency === toCurrency){
-      setExchangeRate(1)
-    }*/
-  },[])//, [fromCurrency,toCurrency])
-
 
   function handleFromAmountChange(e) {
     setAmount(e.target.value)

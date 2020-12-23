@@ -17,7 +17,7 @@ function CurrencyRow(
                 {currencyOptions.map(option => (
                     <option 
                         value={option.name} 
-                        key={option.name + option.crypto.toString()}>
+                        key={option.name + option.market.toString()}>
                     {option.name}
                     </option>
                 ))}
