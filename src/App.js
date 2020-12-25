@@ -2,14 +2,14 @@ import React, {useEffect, useState} from 'react';
 import './App.css'
 import CurrencyRow from './components/CurrencyRow'
 
-import {getPairExchangeRate, getMarketInfo} from './service/exchangeService'
+import {updateMarketInfo,exchangeRateFromArray} from './service/exchangeService'
 import {allAvailableCurrencies} from './service/availableSymbolsService'
 
 function App() {
 
   const [currencyOptions, setCurrencyOptions] = useState([])
-  const [fromCurrency, setFromCurrency] = useState()
-  const [toCurrency, setToCurrency] = useState()
+  const [fromCurrency, setFromCurrency] = useState({name: 'EUR', market: 'world'})
+  const [toCurrency, setToCurrency] = useState({name: 'DKK', market: 'world'})
   const [exchangeRate, setExchangeRate] = useState()
   const [amount, setAmount] = useState(1)
   const [amountiInFromCurrency, setAmountiInFromCurrency] = useState(true)
@@ -30,48 +30,32 @@ function App() {
     //Loads all available Currencies
     allAvailableCurrencies().then(allCurrencies => {
       setCurrencyOptions(allCurrencies)
-
       //Sets default FromCurrency, ToCurrency
-      setFromCurrency(allCurrencies[0].name)
-      setToCurrency(allCurrencies[1].name)
+      //setFromCurrency(allCurrencies[0])
+      //setToCurrency(allCurrencies[1])
 
-      getMarketInfo(allCurrencies[0],allCurrencies[1]).then(result => {
+      //
+        updateMarketInfo(fromCurrency,toCurrency, allCurrencies).then((response) => {
+          setExchangeRate(response.exchangeRate)
+          setPairRates(response.pairs)
+        })
 
-        setPairRates(result)
-      })
-
-      getPairExchangeRate(allCurrencies[0].name,allCurrencies[1].name, pairRates)
-          .then((response) => {
-            console.log(response)
-          })
-      //Loads the default market on "pairRates" and sets the exchangeRate between default FromCurrency and ToCurrency
     })
-      
-  }, [])
-    /* Returns an object with the rate from the first coin and the array of all normal Currencies
-      { 
-        firstRate: 1.45, (Rate from the first coin in the array below)
-        currenciesArray: [{name: "CAD", crypto: false}, {name: "GBP", crypto: false}...]
-      }
-    *//*
-    getNormalCurrencies().then((normalCurrenciesArray) => {
-      //Gets an array including all crypto currencys with USDT pair in the market
-      getCryptoInfo().then(allUSDcryptos => {
-        var allCurrencies = [...normalCurrenciesArray.currenciesArray,...allUSDcryptos]
-
-        // Stores all currencies on state to load them on CurrencyRow component
-          setCurrencyOptions(allCurrencies)
-        // Defines the default currency shown on both ends (From and To)
-          setFromCurrency(allCurrencies[0].name)
-          setToCurrency(allCurrencies[1].name)
-        //Sets the exchange rate to the firstCurrencyReturned Rate
-          setExchangeRate(normalCurrenciesArray.firstRate)
-      })
-    })
-  }, [])
+  },[])
 
   //Runs everytime the user changes the currency selection
-  */
+  useEffect(()=>{
+    var exchangeRateCached = exchangeRateFromArray(fromCurrency,toCurrency, pairRates)
+      if (!exchangeRateCached) {
+        updateMarketInfo(fromCurrency,toCurrency).then((response) => {
+          setExchangeRate(response.exchangeRate)
+          setPairRates(response.pairs)
+        })
+      } else {
+        setExchangeRate(exchangeRateCached)
+      }
+  },[fromCurrency,toCurrency])
+      
 
   function handleFromAmountChange(e) {
     setAmount(e.target.value)
@@ -88,8 +72,11 @@ function App() {
       <h1 className="convert-title">Convert</h1>
       <CurrencyRow className="currency-row"
           currencyOptions={currencyOptions}
-          selectedCurrency={fromCurrency}
-          onChangeCurrency={e => setFromCurrency(e.target.value)}
+          selectedCurrency={fromCurrency} 
+          onChangeCurrency={e => {
+              setFromCurrency(JSON.parse(e.target.value))
+            }
+          }
           amount={fromAmount}
           onChangeAmount= {handleFromAmountChange}>
       </CurrencyRow>
@@ -97,13 +84,12 @@ function App() {
       <CurrencyRow className="currency-row"
             currencyOptions={currencyOptions}
             selectedCurrency={toCurrency}
-            onChangeCurrency={e => setToCurrency(e.target.value)}
+            onChangeCurrency={e => setToCurrency(JSON.parse(e.target.value))}
             amount={toAmount}
             onChangeAmount= {handleToAmountChange}>
       </CurrencyRow>
     </div>
-    
   );
-  }
+}
 
 export default App;

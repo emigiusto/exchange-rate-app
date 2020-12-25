@@ -1,9 +1,13 @@
 import React from 'react';
-import SelectBox from './SelectBox'
-
+//import SelectBox from './SelectBox'
+// <SelectBox currencyOptions={currencyOptions} selectedCurrency={selectedCurrency} onChangeCurrency={onChangeCurrency}/>
 function CurrencyRow(
-    {currencyOptions,selectedCurrency, onChangeCurrency,
-    amount,onChangeAmount}) {
+    {   currencyOptions,
+        selectedCurrency, 
+        onChangeCurrency,
+        amount,
+        onChangeAmount
+    }) {
     return (
         <div>
             <input  type="number" 
@@ -11,14 +15,13 @@ function CurrencyRow(
                     value={isNaN(amount) ? 0 : amount}
                     onChange={onChangeAmount}>
             </input>
-            <SelectBox currencyOptions={currencyOptions} selectedCurrency={selectedCurrency} onChangeCurrency={onChangeCurrency}/>
-
-            <select value={selectedCurrency} onChange={onChangeCurrency}>
+            <select value={JSON.stringify(selectedCurrency)} onChange={onChangeCurrency}>
                 {currencyOptions.map(option => (
                     <option 
-                        value={option.name} 
-                        key={option.name + option.market.toString()}>
-                    {option.name}
+                        value={JSON.stringify(option)}
+                        key={option.name + option.market.toString()}
+                    >
+                        {option.name}
                     </option>
                 ))}
             </select>

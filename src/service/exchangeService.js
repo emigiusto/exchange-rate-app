@@ -1,43 +1,52 @@
-import {anyCointoCrypto,cryptoToCrypto} from '../converters/helpers/cryptoCurrencyConverter';
+import {getCryptoInfo,anyCointoCrypto} from '../converters/helpers/cryptoCurrencyConverter';
 import {getWorldExchangeRate} from '../converters/helpers/worldCurrencyConverter';
 
-
 async function getPairExchangeRate(currency1,currency2,pairsRates){
-    console.log(currency1,currency2,pairsRates)
     if (exchangeRateFromArray(currency1,currency2,pairsRates)){
         return exchangeRateFromArray(currency1,currency2,pairsRates)
     } else {
-        var pairsArray = getMarketInfo(currency1,currency2).then(response => response)
+        var pairsArray = updateMarketInfo(currency1,currency2).then(response => response)
         return pairsArray
     }
 }
 
-async function getMarketInfo(currency1,currency2){
+async function updateMarketInfo(currency1,currency2){
     var pairsArray;
-    console.log(currency1,currency2)
     if ((currency1.market === "crypto" && currency2.market === "world")  || (currency1.market === "world" && currency2.market === "crypto")) {
-        pairsArray = anyCointoCrypto(currency1)
+        pairsArray = anyCointoCrypto(currency1).then(response => response)
     } else if (currency1.market === "crypto" && currency2.market === "crypto"){
-        pairsArray = cryptoToCrypto(currency1)
+        pairsArray = getCryptoInfo(currency1,currency2).then(response => response)
     } else if (currency1.market === "world" && currency2.market === "world"){
-        pairsArray = getWorldExchangeRate(currency1)
+        pairsArray = getWorldExchangeRate(currency1).then(response => response)
     } else {
         return null
     }
-    return pairsArray
+    var exchangePairsArray = await Promise.all([pairsArray])
+    var exchangeRate = exchangeRateFromArray(currency1,currency2,exchangePairsArray[0])
+    return {pairs: exchangePairsArray[0], exchangeRate: exchangeRate}
 }
 
+
 function exchangeRateFromArray(currency1,currency2,pairsRates){
-    if (pairsRates.lenght === 0) {
+    if (pairsRates.length === 0) {
         return false
     } else {
-        var found = pairsRates.find(pairSymbol => ((pairSymbol.pair[0] === currency1 && pairSymbol.pair[1] === currency2) || (pairSymbol.pair[0] === currency2 && pairSymbol.pair[1] === currency1)))
+        var found = pairsRates.find(pairSymbol => ((pairSymbol.pair[0] === currency1.name && pairSymbol.pair[1] === currency2.name) || (pairSymbol.pair[0] === currency2.name && pairSymbol.pair[1] === currency1.name)))
         if (found) {
-            return (found.pair[0] === currency1) ? found.rate : 1/found.rate
+            return (found.pair[0] === currency1) ? 1/found.rate : found.rate
         } else {
             return false
         }
     }
 }
 
-export {getMarketInfo,getPairExchangeRate}
+function getCoinMarket(currency,currencyOptions) {
+    var coin = currencyOptions.find(option => option.name === currency.name)
+
+    if (coin) {
+        return coin.market
+    }
+        return false
+}
+
+export {updateMarketInfo,getPairExchangeRate,exchangeRateFromArray,getCoinMarket}

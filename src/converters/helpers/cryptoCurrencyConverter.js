@@ -3,8 +3,6 @@ const EXCHANGE_URL = 'https://api.exchangeratesapi.io/latest'
 
 const Axios = require('axios').default;
 
-
-
 const getCryptoInfo = async () => {
   const cryptoData = await Axios.get(CRYPTO_URL);
       var onlyUSDT = cryptoData.data.filter(symbolInfo => symbolInfo.symbol.slice(-4) === "USDT")

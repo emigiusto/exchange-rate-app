@@ -12,9 +12,7 @@ const getWorldExchangeRate = async (currency1) => {
                         timestamp: new Date()
                     })
                 }
-                    
             return ratePairs
-            
         })
     return exchangeRate
 }
