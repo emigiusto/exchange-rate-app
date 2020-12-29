@@ -2,8 +2,10 @@ import React, {useEffect, useState} from 'react';
 import './App.css'
 import CurrencyRow from './components/CurrencyRow'
 
-import {updateMarketInfo,exchangeRateFromArray} from './service/exchangeService'
+import {updateMarketInfo} from './service/exchangeService'
 import {allAvailableCurrencies} from './service/availableSymbolsService'
+import {mergePairArray} from './helpers/arrayMethods'
+import {exchangeRateFromArray} from "./helpers/exchangeRateFromArray";
 
 function App() {
 
@@ -19,10 +21,10 @@ function App() {
   //Decides which input we should update (the opposite from the user' changes)
   if (amountiInFromCurrency) {
     fromAmount = amount
-    toAmount = amount * exchangeRate
+    toAmount = parseFloat((amount * exchangeRate).toFixed(5))
   } else {
     toAmount = amount
-    fromAmount = amount / exchangeRate
+    fromAmount = parseFloat((amount / exchangeRate).toFixed(5))
   }
 
   //Runs when mounting the App getting loading available currency and first exchange rate
@@ -30,11 +32,7 @@ function App() {
     //Loads all available Currencies
     allAvailableCurrencies().then(allCurrencies => {
       setCurrencyOptions(allCurrencies)
-      //Sets default FromCurrency, ToCurrency
-      //setFromCurrency(allCurrencies[0])
-      //setToCurrency(allCurrencies[1])
-
-      //
+      //Sets default FromCurrency, ToCurrency and the initial pairsRate
         updateMarketInfo(fromCurrency,toCurrency, allCurrencies).then((response) => {
           setExchangeRate(response.exchangeRate)
           setPairRates(response.pairs)
@@ -45,15 +43,20 @@ function App() {
 
   //Runs everytime the user changes the currency selection
   useEffect(()=>{
-    var exchangeRateCached = exchangeRateFromArray(fromCurrency,toCurrency, pairRates)
+    if (fromCurrency.name !== toCurrency.name) {
+      var exchangeRateCached = exchangeRateFromArray(fromCurrency,toCurrency, pairRates)
       if (!exchangeRateCached) {
         updateMarketInfo(fromCurrency,toCurrency).then((response) => {
           setExchangeRate(response.exchangeRate)
-          setPairRates(response.pairs)
+          setPairRates(currentPairs => mergePairArray(currentPairs,response.pairs))
         })
       } else {
         setExchangeRate(exchangeRateCached)
       }
+    } else {
+      setExchangeRate(1)
+    }
+    
   },[fromCurrency,toCurrency])
       
 
@@ -73,10 +76,7 @@ function App() {
       <CurrencyRow className="currency-row"
           currencyOptions={currencyOptions}
           selectedCurrency={fromCurrency} 
-          onChangeCurrency={e => {
-              setFromCurrency(JSON.parse(e.target.value))
-            }
-          }
+          onChangeCurrency={e => setFromCurrency(JSON.parse(e.target.value))}
           amount={fromAmount}
           onChangeAmount= {handleFromAmountChange}>
       </CurrencyRow>

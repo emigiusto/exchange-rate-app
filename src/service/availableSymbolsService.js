@@ -18,7 +18,7 @@ async function getWorldCurrencies(){
 
 async function getUSDCryptoCurrencies() {
     const cryptoData = await Axios.get(CRYPTO_URL);
-        var onlyUSDT = cryptoData.data.filter(symbolInfo => symbolInfo.symbol.slice(-4) === "USDT")
+        var onlyUSDT = cryptoData.data.filter(symbolInfo => symbolInfo.symbol.slice(-4) === "USDT" &&  !(symbolInfo.symbol.slice(0,3) === "EUR"))
         var allUSDcryptos = onlyUSDT.map(usdtSymbolInfo => {
           var lenghtSymbol = usdtSymbolInfo.symbol.length
           return {

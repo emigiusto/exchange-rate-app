@@ -1,52 +1,51 @@
-import {getCryptoInfo,anyCointoCrypto} from '../converters/helpers/cryptoCurrencyConverter';
-import {getWorldExchangeRate} from '../converters/helpers/worldCurrencyConverter';
+//Converters
+import cryptoExchangeRates from '../converters/cryptoCurrencyConverter';
+import {worldExchangeRates} from '../converters/worldCurrencyConverter';
 
-async function getPairExchangeRate(currency1,currency2,pairsRates){
-    if (exchangeRateFromArray(currency1,currency2,pairsRates)){
-        return exchangeRateFromArray(currency1,currency2,pairsRates)
-    } else {
-        var pairsArray = updateMarketInfo(currency1,currency2).then(response => response)
-        return pairsArray
-    }
-}
+//Helpers
+import {createPairFromMarkets} from "../converters/helpers/createPairFromMarkets";
+import {exchangeRateFromArray} from "../helpers/exchangeRateFromArray";
 
+// Updates the Currency Pairs array by performing the corresponding API calls and returns 
+// the updated array and the exchange rate between currencies from parameters.
 async function updateMarketInfo(currency1,currency2){
-    var pairsArray;
-    if ((currency1.market === "crypto" && currency2.market === "world")  || (currency1.market === "world" && currency2.market === "crypto")) {
-        pairsArray = anyCointoCrypto(currency1).then(response => response)
-    } else if (currency1.market === "crypto" && currency2.market === "crypto"){
-        pairsArray = getCryptoInfo(currency1,currency2).then(response => response)
-    } else if (currency1.market === "world" && currency2.market === "world"){
-        pairsArray = getWorldExchangeRate(currency1).then(response => response)
-    } else {
-        return null
-    }
-    var exchangePairsArray = await Promise.all([pairsArray])
-    var exchangeRate = exchangeRateFromArray(currency1,currency2,exchangePairsArray[0])
-    return {pairs: exchangePairsArray[0], exchangeRate: exchangeRate}
-}
-
-
-function exchangeRateFromArray(currency1,currency2,pairsRates){
-    if (pairsRates.length === 0) {
-        return false
-    } else {
-        var found = pairsRates.find(pairSymbol => ((pairSymbol.pair[0] === currency1.name && pairSymbol.pair[1] === currency2.name) || (pairSymbol.pair[0] === currency2.name && pairSymbol.pair[1] === currency1.name)))
-        if (found) {
-            return (found.pair[0] === currency1) ? 1/found.rate : found.rate
-        } else {
-            return false
+    var currencyArray = currency1.market !== currency2.market ? [currency1,currency2] : [currency1];
+    var promiseArray = []
+    currencyArray.forEach(currency => {
+        var currencyMarketInfoPromise;
+        switch (currency.market) {
+            case "crypto":
+                currencyMarketInfoPromise = cryptoExchangeRates()
+                
+                break;
+            case "world":
+                currencyMarketInfoPromise = worldExchangeRates(currency1)
+                break;
+            default:
+                break;
         }
-    }
+        promiseArray.push(currencyMarketInfoPromise)
+    });
+
+    var currencyMarketInfoResolved = Promise.all(promiseArray).then(resolvedPromisesArray => {
+        var allPairInfo = []
+        resolvedPromisesArray.forEach(marketArray => {
+            allPairInfo.push(...marketArray)
+        });
+
+        var exchangeRate = exchangeRateFromArray(currency1,currency2,allPairInfo)
+        if (!exchangeRate) {
+            var newPair = createPairFromMarkets(currency1,currency2,allPairInfo)
+            allPairInfo = [...allPairInfo, newPair]
+            exchangeRate = exchangeRateFromArray(currency1,currency2,allPairInfo)
+        }
+
+        return {
+            pairs: allPairInfo, 
+            exchangeRate: exchangeRate
+            }
+    })
+    return currencyMarketInfoResolved
 }
 
-function getCoinMarket(currency,currencyOptions) {
-    var coin = currencyOptions.find(option => option.name === currency.name)
-
-    if (coin) {
-        return coin.market
-    }
-        return false
-}
-
-export {updateMarketInfo,getPairExchangeRate,exchangeRateFromArray,getCoinMarket}
+export {updateMarketInfo}
