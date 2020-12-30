@@ -8,7 +8,7 @@ import Footer from "./components/Footer";
 
 import {updateMarketInfo} from './service/exchangeService'
 import {allAvailableCurrencies} from './service/availableSymbolsService'
-import {mergePairArray} from './helpers/mergePairArray'
+import mergePairArray from './helpers/mergePairArray'
 import {exchangeRateFromArray} from "./helpers/exchangeRateFromArray";
 
 import {defaultFromCurrency, defaultToCurrency} from "./config";

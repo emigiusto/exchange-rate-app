@@ -8,4 +8,4 @@ function mergePairArray(currentPairs,newPairs) {
     return [...filteredCurrentPairs,...newPairs]
 }
 
-module.exports = {mergePairArray}
+export default mergePairArray
