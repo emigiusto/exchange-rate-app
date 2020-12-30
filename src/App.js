@@ -4,7 +4,7 @@ import CurrencyRow from './components/CurrencyRow'
 
 import {updateMarketInfo} from './service/exchangeService'
 import {allAvailableCurrencies} from './service/availableSymbolsService'
-import {mergePairArray} from './helpers/arrayMethods'
+import {mergePairArray} from './helpers/mergePairArray'
 import {exchangeRateFromArray} from "./helpers/exchangeRateFromArray";
 
 function App() {
@@ -18,7 +18,7 @@ function App() {
   const [pairRates, setPairRates] = useState([])
 
   let toAmount, fromAmount;
-  //Decides which input we should update (the opposite from the user' changes)
+  //Decides which input we should update (the opposite from the user's changes)
   if (amountiInFromCurrency) {
     fromAmount = amount
     toAmount = parseFloat((amount * exchangeRate).toFixed(5))
@@ -44,6 +44,7 @@ function App() {
   //Runs everytime the user changes the currency selection
   useEffect(()=>{
     if (fromCurrency.name !== toCurrency.name) {
+      //Checks if the pair fromCurrency-toCurrency already exists on State, if not, the exchangeService gets called
       var exchangeRateCached = exchangeRateFromArray(fromCurrency,toCurrency, pairRates)
       if (!exchangeRateCached) {
         updateMarketInfo(fromCurrency,toCurrency).then((response) => {
@@ -53,7 +54,7 @@ function App() {
       } else {
         setExchangeRate(exchangeRateCached)
       }
-    } else {
+    } else { //If the currency selected in both select element is the same, the exchangeRate is 1
       setExchangeRate(1)
     }
     

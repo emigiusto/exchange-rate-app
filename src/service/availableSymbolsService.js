@@ -3,6 +3,7 @@ const CRYPTO_URL = 'https://api.binance.com/api/v3/ticker/price'
 
 const Axios = require('axios').default;
 
+//Returns an array with all available currencies from World Market in api.exchangeratesapi.io
 async function getWorldCurrencies(){
     var currenciesInfo = fetch(BASE_URL)
         .then(res => res.json())
@@ -16,6 +17,7 @@ async function getWorldCurrencies(){
     return currenciesInfo
 }
 
+//Returns an array with all available currencies from Crypto Market in Binance Exchange
 async function getUSDCryptoCurrencies() {
     const cryptoData = await Axios.get(CRYPTO_URL);
         var onlyUSDT = cryptoData.data.filter(symbolInfo => symbolInfo.symbol.slice(-4) === "USDT" &&  !(symbolInfo.symbol.slice(0,3) === "EUR"))
@@ -29,7 +31,7 @@ async function getUSDCryptoCurrencies() {
         return allUSDcryptos
   };
 
-
+//Returns an array with all available currencies from Crypto and World Market
 async function allAvailableCurrencies() {
   //Request info from each market
   let worldCurrenciesPromise = getWorldCurrencies().then((worldCurrencies) => worldCurrencies)

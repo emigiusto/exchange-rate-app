@@ -1,4 +1,4 @@
-//Converters
+//Converters -> In case of including aditional markets/APIs please add more converters and import them below
 import cryptoExchangeRates from '../converters/cryptoCurrencyConverter';
 import {worldExchangeRates} from '../converters/worldCurrencyConverter';
 
@@ -13,6 +13,7 @@ async function updateMarketInfo(currency1,currency2){
     var promiseArray = []
     currencyArray.forEach(currency => {
         var currencyMarketInfoPromise;
+        //In case of including aditional markets/APIs please add more cases in the switch statement
         switch (currency.market) {
             case "crypto":
                 currencyMarketInfoPromise = cryptoExchangeRates()
@@ -26,20 +27,22 @@ async function updateMarketInfo(currency1,currency2){
         }
         promiseArray.push(currencyMarketInfoPromise)
     });
-
+    //Resolves problem and stores the information on "allPairInfo"
     var currencyMarketInfoResolved = Promise.all(promiseArray).then(resolvedPromisesArray => {
         var allPairInfo = []
         resolvedPromisesArray.forEach(marketArray => {
             allPairInfo.push(...marketArray)
         });
 
+        //Gets the exchange rate from currency1-currency2. In case the pair doesn't exist, it gets created 
+        // from the currency1/USD and currency2/USD pair
         var exchangeRate = exchangeRateFromArray(currency1,currency2,allPairInfo)
         if (!exchangeRate) {
             var newPair = createPairFromMarkets(currency1,currency2,allPairInfo)
             allPairInfo = [...allPairInfo, newPair]
             exchangeRate = exchangeRateFromArray(currency1,currency2,allPairInfo)
         }
-
+        //Returns an object with all pairs and the exchange rate only from currency1-currency2 parameters
         return {
             pairs: allPairInfo, 
             exchangeRate: exchangeRate
