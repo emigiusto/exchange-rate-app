@@ -1,6 +1,6 @@
 //Converters -> In case of including aditional markets/APIs please add more converters and import them below
 import cryptoExchangeRates from '../converters/cryptoCurrencyConverter';
-import {worldExchangeRates} from '../converters/worldCurrencyConverter';
+import worldExchangeRates from '../converters/worldCurrencyConverter';
 
 //Helpers
 import {createPairFromMarkets} from "../converters/helpers/createPairFromMarkets";

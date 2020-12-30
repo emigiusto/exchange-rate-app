@@ -2,7 +2,7 @@ import Axios from 'axios';
 //Helpers
 import {cryptoDataReformat} from "./helpers/cryptoDataReformat";
 
-const CRYPTO_URL = 'https://api.binance.com/api/v3/ticker/price'
+import {CRYPTO_URL} from "../config";
 
 //Gets all crypto pairs information with USDT as the basecoin
 const cryptoExchangeRates = async () => {

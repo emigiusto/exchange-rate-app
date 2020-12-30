@@ -1,5 +1,8 @@
 import React, {useEffect, useState} from 'react';
+//Styles
 import './App.css'
+
+//Components
 import CurrencyRow from './components/CurrencyRow'
 
 import {updateMarketInfo} from './service/exchangeService'
@@ -7,11 +10,13 @@ import {allAvailableCurrencies} from './service/availableSymbolsService'
 import {mergePairArray} from './helpers/mergePairArray'
 import {exchangeRateFromArray} from "./helpers/exchangeRateFromArray";
 
+import {defaultFromCurrency, defaultToCurrency} from "./config";
+
 function App() {
 
   const [currencyOptions, setCurrencyOptions] = useState([])
-  const [fromCurrency, setFromCurrency] = useState({name: 'EUR', market: 'world'})
-  const [toCurrency, setToCurrency] = useState({name: 'DKK', market: 'world'})
+  const [fromCurrency, setFromCurrency] = useState(defaultFromCurrency)
+  const [toCurrency, setToCurrency] = useState(defaultToCurrency)
   const [exchangeRate, setExchangeRate] = useState()
   const [amount, setAmount] = useState(1)
   const [amountiInFromCurrency, setAmountiInFromCurrency] = useState(true)
@@ -33,7 +38,7 @@ function App() {
     allAvailableCurrencies().then(allCurrencies => {
       setCurrencyOptions(allCurrencies)
       //Sets default FromCurrency, ToCurrency and the initial pairsRate
-        updateMarketInfo(fromCurrency,toCurrency, allCurrencies).then((response) => {
+        updateMarketInfo(defaultFromCurrency,defaultToCurrency, allCurrencies).then((response) => {
           setExchangeRate(response.exchangeRate)
           setPairRates(response.pairs)
         })
@@ -58,7 +63,7 @@ function App() {
       setExchangeRate(1)
     }
     
-  },[fromCurrency,toCurrency])
+  },[fromCurrency,toCurrency,pairRates])
       
 
   function handleFromAmountChange(e) {
