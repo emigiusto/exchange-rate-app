@@ -1,6 +1,5 @@
 import React from 'react';
-//import SelectBox from './SelectBox'
-// <SelectBox currencyOptions={currencyOptions} selectedCurrency={selectedCurrency} onChangeCurrency={onChangeCurrency}/>
+
 function CurrencyRow(
     {   currencyOptions,
         selectedCurrency, 

@@ -4,6 +4,7 @@ import './App.css'
 
 //Components
 import CurrencyRow from './components/CurrencyRow'
+import Footer from "./components/Footer";
 
 import {updateMarketInfo} from './service/exchangeService'
 import {allAvailableCurrencies} from './service/availableSymbolsService'
@@ -94,6 +95,7 @@ function App() {
             amount={toAmount}
             onChangeAmount= {handleToAmountChange}>
       </CurrencyRow>
+      <Footer></Footer>
     </div>
   );
 }
