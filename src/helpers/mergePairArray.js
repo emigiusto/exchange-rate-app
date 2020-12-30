@@ -1,4 +1,4 @@
-function mergePairArray(currentPairs,newPairs) {
+export default function mergePairArray(currentPairs,newPairs) {
     //Merges current currency airs on state with new Currency pairs returned from the API
     //replacing the new ones with the old ones
     var newPairsStringify = newPairs.map(newPairInfo => JSON.stringify(newPairInfo.pair))
@@ -7,5 +7,3 @@ function mergePairArray(currentPairs,newPairs) {
     var filteredCurrentPairs = currentPairs.filter(currentPairInfo => !(newPairsStringify.includes(JSON.stringify(currentPairInfo.pair))))
     return [...filteredCurrentPairs,...newPairs]
 }
-
-export default mergePairArray
