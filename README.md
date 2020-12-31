@@ -17,6 +17,7 @@ Aditional potential features:
 - Validating timestamp from exchange rates cached and setting up a default expiring period (e.g. 5 minutes)
 - In case two external exchanges sites support the same pair of currencies, decide which exchange rate to show base on volume
 - Show 24h change %
+- Historical price chart
 
 ## Emiliano Giusto 2020
 - https://github.com/emigiusto

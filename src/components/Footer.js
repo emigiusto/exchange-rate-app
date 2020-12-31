@@ -1,7 +1,7 @@
 import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(() => ({
     root: {
         display: 'flex',
         justifyContent: 'center',
@@ -10,16 +10,20 @@ const useStyles = makeStyles((theme) => ({
         left: 0,
         right: 0,
         height: '50px',
-        fontSize: '1rem',
-        fontFamily: 'Roboto'
+        backgroundImage: 'linear-gradient(to top, #cfd9df 0%, #e2ebf0 100%)'
     },
+    name: {
+        margin: 'auto',
+        fontSize: '.9rem',
+        fontStyle: 'italic'
+    }
   }));
 
 function Footer() {
     const classes = useStyles();
     return (
         <div className={classes.root}>
-            Emiliano Giusto 2021 - Opeepl Test
+            <p className={classes.name}>Emiliano Giusto 2021 - Exchange Rate Website - Opeepl Test</p>
         </div>
     );
 }

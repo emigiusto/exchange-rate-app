@@ -95,6 +95,7 @@ function App() {
             amount={toAmount}
             onChangeAmount= {handleToAmountChange}>
       </CurrencyRow>
+      <p className="sources">Data provided by Binance Exchange and ExchangeRateAPI.io</p>
       <Footer></Footer>
     </div>
   );
