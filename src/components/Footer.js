@@ -10,7 +10,8 @@ const useStyles = makeStyles(() => ({
         left: 0,
         right: 0,
         height: '50px',
-        backgroundImage: 'linear-gradient(to top, #cfd9df 0%, #e2ebf0 100%)'
+        backgroundImage: 'linear-gradient(to top, #e6e9f0 0%, #eef1f5 100%);',
+        border: 'solid 1px rgb(201, 209, 219)'
     },
     name: {
         margin: 'auto',
