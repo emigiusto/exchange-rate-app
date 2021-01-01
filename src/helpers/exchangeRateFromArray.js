@@ -1,5 +1,5 @@
 function exchangeRateFromArray(currency1,currency2,pairsRates){
-//Given an array with currency pairs, returns only the exchange rate of the currency1-currency2 pair or false if the pair doesn't exist
+//Given an array with currency pairs, returns only the exchange rate value of the currency1-currency2 or false if the pair doesn't exist
     if (pairsRates.length === 0) {
         return false
     } else {

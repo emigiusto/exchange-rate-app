@@ -1,5 +1,6 @@
 function createPairFromMarkets(currency1,currency2,marketsInfo) {
-    //Find each currency's pair against USD
+    //Given two currencies and the full array of markets info, creates the pair currency-currency2 calculating their Exchange Rate
+
     var currency1USD = marketsInfo.filter(pairInfo => (pairInfo.pair[0] === currency1.name && pairInfo.pair[1] === "USD") || (pairInfo.pair[1] === currency1.name && pairInfo.pair[0] === "USD"))
     var currency2USD = marketsInfo.filter(pairInfo => (pairInfo.pair[0] === currency2.name && pairInfo.pair[1] === "USD") || (pairInfo.pair[1] === currency2.name && pairInfo.pair[0] === "USD"))
     //Calculates each exchange Rates against USD

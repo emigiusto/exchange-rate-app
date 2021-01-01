@@ -1,11 +1,10 @@
-const BASE_URL = 'https://api.exchangeratesapi.io/latest'
-const CRYPTO_URL = 'https://api.binance.com/api/v3/ticker/price'
+import {CRYPTO_URL, WORLD_URL} from "../config";
 
 const Axios = require('axios').default;
 
 //Returns an array with all available currencies from World Market in api.exchangeratesapi.io
 async function getWorldCurrencies(){
-    var currenciesInfo = fetch(BASE_URL)
+    var currenciesInfo = fetch(WORLD_URL)
         .then(res => res.json())
         .then(data => {
             var currenciesArray = Object.keys(data.rates)
