@@ -17,10 +17,9 @@ async function updateMarketInfo(currency1,currency2){
         switch (currency.market) {
             case "crypto":
                 currencyMarketInfoPromise = cryptoExchangeRates()
-                
                 break;
             case "world":
-                currencyMarketInfoPromise = worldExchangeRates(currency1)
+                currencyMarketInfoPromise = worldExchangeRates(currency)
                 break;
             default:
                 break;
